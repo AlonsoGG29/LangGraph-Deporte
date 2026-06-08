@@ -71,3 +71,11 @@ En `agents/critic.py` puedes ajustar:
 
 En `agents/researcher.py`:
 - `max_results` de Tavily (por defecto `5`)
+
+## Ejemplos de ejecución
+
+### - **Pregunta objetiva**:
+![Preguntando sobre nº de mundiales](pregunta1.jpg)
+#
+### - **Pregunta subjetiva**:
+![Preguntando quien es mejor](pregunta2.jpg)
