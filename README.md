@@ -23,14 +23,15 @@ START → researcher_agent → sports_analyst → critic
 ```bash
 # 1. Crea y activa un entorno virtual
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+# Linux:
+source .venv/bin/activate  
+# Windows: 
+.venv\Scripts\activate
 
 # 2. Instala dependencias
 pip install -r requirements.txt
 
-# 3. Configura tus API keys
-cp .env.example .env
-# Edita .env con tus claves de OpenAI y Tavily
+# 3. Edita .env con tus claves de OpenAI y Tavily
 ```
 
 ## Obtener las API Keys
@@ -44,22 +45,16 @@ cp .env.example .env
 python main.py
 ```
 
-O importa la función `run` desde tu propio script:
+O ejecuta el `main.py` desde tu propio entorno de desarrollo
 
-```python
-from main import run
-
-análisis = run("¿Cuántos goles lleva Mbappé en el Real Madrid?")
-print(análisis)
-```
 
 ## Estructura de archivos
 
 ```
-sports-analyst/
+langgraph/
 ├── main.py                  # Punto de entrada
 ├── requirements.txt
-├── .env.example
+├── .env
 ├── graph/
 │   ├── state.py             # Estado compartido (SportAnalysisState)
 │   └── builder.py           # Construcción y compilación del grafo
