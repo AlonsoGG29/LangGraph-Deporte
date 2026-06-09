@@ -9,7 +9,7 @@ from graph.state import SportAnalysisState
 
 llm = ChatOpenAI(
     api_key=os.getenv("OPENAI_API_KEY"),
-    base_url="https://aggfoundry.openai.azure.com/openai/v1",
+    base_url=os.getenv("AZURE_OPENAI_BASE_URL"),
     model="gpt-4o-mini",
     temperature=0,
 )
