@@ -17,12 +17,14 @@ def build_graph():
 
         START → researcher_agent → sports_analyst → critic
                     ↑                                  |
-                    |_____ needs_revision ← human_feedback (interruption)
-                                                      |
-                                            approved → END
-    
+                    |_____ human_feedback (interruption) 
+                    |         ↓
+                    |    Usuario aprueba → END
+                    |    Usuario rechaza ↓
+                    |_____________________
+
     El nodo human_feedback usa breakpoint para permitir al usuario revisar
-    y proporcionar feedback sobre la decisión del crítico.
+    y proporcionar feedback sobre la decisión del crítico OBLIGATORIAMENTE.
     """
     workflow = StateGraph(SportAnalysisState)
 
@@ -38,19 +40,10 @@ def build_graph():
     # ── Aristas directas ─────────────────────────────────────────────────────
     workflow.add_edge("researcher_agent", "sports_analyst")
     workflow.add_edge("sports_analyst", "critic")
+    workflow.add_edge("critic", "human_feedback")  # SIEMPRE va a human_feedback
 
-    # ── Arista condicional desde el critic ───────────────────────────────────
-    workflow.add_conditional_edges(
-        "critic",
-        should_continue,
-        {
-            "approved": END,
-            "needs_revision": "human_feedback",  # Interrumpe para feedback humano
-        },
-    )
-
-    # ── Arista desde human_feedback hacia researcher ──────────────────────────
-    workflow.add_edge("human_feedback", "researcher_agent")
+    # ── Retorno desde human_feedback ─────────────────────────────────────────
+    workflow.add_edge("human_feedback", END)  # Va directo a END después de feedback
 
     # ── Compilar con checkpointer y breakpoint ──────────────────────────────
     checkpointer = MemorySaver()

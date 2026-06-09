@@ -108,9 +108,6 @@ def human_feedback_node(state: SportAnalysisState) -> SportAnalysisState:
 def should_continue(state: SportAnalysisState) -> str:
     """
     Función de enrutamiento condicional:
-    - 'approved'       → END
-    - 'needs_revision' → human_feedback (interrupción para usuario)
+    Siempre envía a human_feedback para que el usuario apruebe o rechace.
     """
-    if state["critic_decision"] == "approved":
-        return "approved"
-    return "needs_revision"
+    return "human_feedback"

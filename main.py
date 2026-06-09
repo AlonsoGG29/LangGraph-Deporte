@@ -1,6 +1,6 @@
 # main.py
 # Punto de entrada principal. Carga variables de entorno y ejecuta el grafo.
-# Implementa human-in-the-loop con breakpoints y update_state.
+# Implementa human-in-the-loop OBLIGATORIO con breakpoints y update_state.
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -10,9 +10,8 @@ from graph.builder import build_graph
 
 def run(question: str) -> str:
     """
-    Ejecuta el pipeline completo dado una pregunta deportiva.
-    Incluye human-in-the-loop en el nodo critic cuando se necesita revisión.
-    Devuelve el análisis final aprobado por el critic.
+    Ejecuta el pipeline completo con human-in-the-loop OBLIGATORIO.
+    El usuario DEBE aprobar o rechazar el análisis antes de finalizar.
     """
     graph = build_graph()
 
@@ -33,50 +32,68 @@ def run(question: str) -> str:
     # Thread para mantener estado en checkpointer
     thread = {"configurable": {"thread_id": "main"}}
 
-    # Ejecutar hasta el primer breakpoint
-    for event in graph.stream(initial_state, thread, stream_mode="values"):
-        pass
-
-    # Loop de human-in-the-loop
+    # Loop principal
     while True:
-        # Verificar si estamos interrumpidos
-        try:
-            # Obtener estado actual
-            state = graph.get_state(thread)
-            
-            if state.values.get("critic_decision") == "approved":
-                # Si ya fue aprobado, salimos del loop
-                final_state = state.values
+        # Ejecutar hasta el breakpoint (human_feedback)
+        for event in graph.stream(initial_state if not hasattr(graph, '_state') else None, thread, stream_mode="values"):
+            pass
+
+        # Obtener estado actual (estamos interrumpidos en human_feedback)
+        state_snapshot = graph.get_state(thread)
+        current_state = state_snapshot.values
+
+        # Mostrar análisis y decisión del crítico
+        print("\n" + "=" * 60)
+        print("📰 ANÁLISIS GENERADO")
+        print("=" * 60)
+        print(current_state.get("analysis", ""))
+        print("\n" + "=" * 60)
+        print("🔎 EVALUACIÓN DEL CRÍTICO")
+        print("=" * 60)
+        decision = current_state.get("critic_decision", "")
+        feedback = current_state.get("critic_feedback", "")
+        print(f"Decisión: {decision.upper()}")
+        if feedback:
+            print(f"Feedback: {feedback}")
+        print("=" * 60)
+
+        # Pedir aprobación/rechazo del usuario
+        print("\n👤 FEEDBACK HUMANO - Opciones:")
+        print("  1) Aprobar análisis → Finalizar")
+        print("  2) Rechazar y proporcionar feedback → Mejorar")
+        
+        while True:
+            choice = input("\n¿Qué deseas hacer? (1/2): ").strip()
+            if choice in ["1", "2"]:
                 break
-            
-            # El crítico necesita revisión, mostrar feedback
-            print("\n" + "=" * 60)
-            print("🔎 [Crítico] Análisis necesita revisión")
-            print("=" * 60)
-            print(f"Score: {state.values.get('critic_feedback', 'N/A')}")
-            print(f"\n📰 Análisis actual:")
-            print(state.values.get("analysis", ""))
-            print("\n" + "=" * 60)
-            
-            # Obtener feedback del usuario
-            user_feedback = input("\n👤 Ingresa tu feedback para mejorar el análisis (o presiona Enter para auto-mejorar): ").strip()
-            
-            # Actualizar estado con feedback del usuario
-            graph.update_state(thread, {"human_feedback": user_feedback}, as_node="human_feedback")
-            
-            # Continuar ejecución
+            print("⚠️  Opción inválida. Ingresa 1 o 2.")
+
+        if choice == "1":
+            # Usuario aprueba → FIN
+            print("\n✅ Análisis aprobado. Finalizando...")
+            graph.update_state(thread, {"human_feedback": "APROBADO"}, as_node="human_feedback")
             for event in graph.stream(None, thread, stream_mode="values"):
                 pass
-                
-        except Exception as e:
-            print(f"⚠️  Error en loop: {e}")
             break
+        else:
+            # Usuario rechaza y proporciona feedback
+            user_feedback = input("\n📝 Ingresa tu feedback para mejorar el análisis: ").strip()
+            if not user_feedback:
+                print("⚠️  Feedback vacío. Intenta de nuevo.")
+                continue
+            
+            # Actualizar estado con feedback
+            graph.update_state(thread, {"human_feedback": user_feedback}, as_node="human_feedback")
+            
+            # Continuar ejecución desde researcher_agent
+            for event in graph.stream(None, thread, stream_mode="values"):
+                pass
 
-    # Estado final
-    final_state = graph.get_state(thread).values if hasattr(graph.get_state(thread), 'values') else final_state
+    # Obtener estado final
+    final_state = graph.get_state(thread).values
 
     print("\n" + "=" * 60)
-    print("📰 ANÁLISIS FINAL")
+    print("📰 ANÁLISIS FINAL APROBADO")
     print("=" * 60)
     print(final_state["analysis"])
     print("=" * 60)
