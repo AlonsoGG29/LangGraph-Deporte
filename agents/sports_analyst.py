@@ -13,7 +13,7 @@ llm = ChatOpenAI(
     api_key=os.getenv("OPENAI_API_KEY"),
     base_url="https://aggfoundry.openai.azure.com/openai/v1",
     model="gpt-4o-mini",
-    temperature=0.7,
+    temperature=0.5,
 )
 
 SYSTEM_PROMPT = """Eres un analista deportivo con estilo periodístico. Tu trabajo es:
