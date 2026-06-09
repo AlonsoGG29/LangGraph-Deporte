@@ -30,10 +30,10 @@ Escribe en español."""
 
 def sports_analyst(state: SportAnalysisState) -> SportAnalysisState:
     """
-    Redacta el análisis deportivo a partir de los datos del researcher.
+    Redacta el análisis deportivo a partir de los datos agregados del researcher.
     """
     question = state["question"]
-    raw_data = state["raw_data"]
+    raw_data = state.get("raw_data", "")
     feedback = state.get("critic_feedback", "")
 
     print(f"\n✍️  [Sports Analyst] Redactando análisis...")
@@ -55,6 +55,5 @@ Redacta un análisis deportivo completo y atractivo.""")
     print(f"✅ [Sports Analyst] Análisis listo ({len(response.content)} chars)")
 
     return {
-        **state,
         "analysis": response.content,
     }

@@ -10,13 +10,15 @@ from graph.builder import build_graph
 
 def run(question: str) -> str:
     """
-    Ejecuta el pipeline completo con human-in-the-loop OBLIGATORIO.
+    Ejecuta el pipeline completo con paralelización y human-in-the-loop OBLIGATORIO.
+    Los investigadores (Tavily y Wikipedia) se ejecutan en PARALELO.
     El usuario DEBE aprobar o rechazar el análisis antes de finalizar.
     """
     graph = build_graph()
 
     initial_state = {
         "question": question,
+        "raw_data_sources": [],  # Lista para acumular datos (operator.add)
         "raw_data": "",
         "analysis": "",
         "critic_feedback": "",
@@ -85,7 +87,7 @@ def run(question: str) -> str:
             # Actualizar estado con feedback
             graph.update_state(thread, {"human_feedback": user_feedback}, as_node="human_feedback")
             
-            # Continuar ejecución desde researcher_agent
+            # Continuar ejecución desde los investigadores paralelos
             for event in graph.stream(None, thread, stream_mode="values"):
                 pass
 

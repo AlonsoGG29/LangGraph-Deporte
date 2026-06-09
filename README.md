@@ -79,3 +79,9 @@ En `agents/researcher.py`:
 #
 ### - **Pregunta subjetiva**:
 ![Preguntando quien es mejor](pregunta2.jpg)
+
+```bash
+# Cambios futuros a añadir
+#   - Approval, debugging, editing (mod3)
+#   - Paralelizacion - pararell node execution (mod4)
+```

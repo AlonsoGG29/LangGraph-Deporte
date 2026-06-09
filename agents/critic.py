@@ -51,7 +51,6 @@ def critic(state: SportAnalysisState) -> SportAnalysisState:
     if iterations >= MAX_ITERATIONS:
         print(f"⚠️  [Critic] Máximo de iteraciones alcanzado. Aprobando forzosamente.")
         return {
-            **state,
             "critic_decision": "approved",
             "critic_feedback": "",
             "human_feedback": "",
@@ -90,7 +89,6 @@ Evalúa el análisis y devuelve el JSON.""")
         print(f"📝 Feedback: {feedback[:120]}...")
 
     return {
-        **state,
         "critic_decision": decision,
         "critic_feedback": feedback,
         "human_feedback": "",  # Reset human_feedback para próxima iteración

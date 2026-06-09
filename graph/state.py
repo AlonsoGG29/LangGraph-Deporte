@@ -1,5 +1,6 @@
 # graph/state.py
 # Define el estado compartido que viaja por todos los nodos del grafo.
+# Incluye paralelización con múltiples fuentes de datos.
 
 from typing import TypedDict, Annotated
 import operator
@@ -9,8 +10,8 @@ class SportAnalysisState(TypedDict):
     # Pregunta original del usuario
     question: str
 
-    # Datos crudos recogidos por el researcher (URLs, estadísticas, etc.)
-    raw_data: str
+    # Datos crudos de múltiples fuentes (lista para acumular con operator.add)
+    raw_data_sources: Annotated[list, operator.add]
 
     # Análisis redactado por el sports_analyst
     analysis: str
