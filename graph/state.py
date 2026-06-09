@@ -23,3 +23,6 @@ class SportAnalysisState(TypedDict):
 
     # Decisión final del critic: "approved" o "needs_revision"
     critic_decision: str
+
+    # Feedback del usuario humano en el bucle human-in-the-loop
+    human_feedback: str

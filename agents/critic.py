@@ -2,6 +2,7 @@
 # Nodo 3: Critic
 # Valida el análisis redactado por el sports_analyst.
 # Decide si aprobarlo (→ END) o devolverlo con feedback (→ researcher_agent).
+# Incluye un punto de interrupción (breakpoint) para human-in-the-loop.
 
 import os
 import json
@@ -42,6 +43,7 @@ def critic(state: SportAnalysisState) -> SportAnalysisState:
     question = state["question"]
     analysis = state["analysis"]
     iterations = state.get("iterations", 0)
+    human_feedback = state.get("human_feedback", "")
 
     print(f"\n🔎 [Critic] Evaluando análisis (iteración {iterations})...")
 
@@ -52,6 +54,7 @@ def critic(state: SportAnalysisState) -> SportAnalysisState:
             **state,
             "critic_decision": "approved",
             "critic_feedback": "",
+            "human_feedback": "",
         }
 
     messages = [
@@ -90,14 +93,23 @@ Evalúa el análisis y devuelve el JSON.""")
         **state,
         "critic_decision": decision,
         "critic_feedback": feedback,
+        "human_feedback": "",  # Reset human_feedback para próxima iteración
     }
+
+
+def human_feedback_node(state: SportAnalysisState) -> SportAnalysisState:
+    """
+    Nodo de no-op para human-in-the-loop.
+    Se interrumpe aquí para permitir al usuario revisar y dar feedback.
+    """
+    pass
 
 
 def should_continue(state: SportAnalysisState) -> str:
     """
     Función de enrutamiento condicional:
     - 'approved'       → END
-    - 'needs_revision' → researcher_agent (bucle)
+    - 'needs_revision' → human_feedback (interrupción para usuario)
     """
     if state["critic_decision"] == "approved":
         return "approved"

@@ -1,3 +1,5 @@
 # Created by user; 
 #.env
 .env
+#Carpetas de py cache
+__pycache__/

@@ -1,6 +1,6 @@
 # agents/researcher.py
 # Nodo 1: Researcher Agent
-# Recibe la pregunta del usuario (y opcionalmente feedback del critic)
+# Recibe la pregunta del usuario (y opcionalmente feedback del critic o humano)
 # y busca estadísticas/datos deportivos en la web con Tavily.
 
 import os
@@ -24,18 +24,22 @@ SYSTEM_PROMPT = """Eres un investigador deportivo especializado. Tu trabajo es:
 2. Buscar estadísticas, resultados, goles, títulos y datos relevantes y actualizados.
 3. Devolver ÚNICAMENTE datos crudos y verificables (números, fechas, fuentes).
 
-Si recibes feedback del crítico, enfócate en corregir exactamente lo que se indica.
+Si recibes feedback del crítico o del usuario, enfócate en corregir exactamente lo que se indica.
 No redactes análisis ni opiniones, solo datos."""
 
 
 def researcher_agent(state: SportAnalysisState) -> SportAnalysisState:
     """
     Busca datos deportivos relevantes para la pregunta del usuario.
-    Si hay feedback del critic, lo usa para refinar la búsqueda.
+    Si hay feedback del critic o del usuario, lo usa para refinar la búsqueda.
     """
     question = state["question"]
-    feedback = state.get("critic_feedback", "")
+    critic_feedback = state.get("critic_feedback", "")
+    human_feedback = state.get("human_feedback", "")
     iterations = state.get("iterations", 0)
+
+    # Prioridad: feedback humano > feedback del crítico
+    feedback = human_feedback if human_feedback else critic_feedback
 
     # Construimos la query de búsqueda
     if feedback:
@@ -65,7 +69,7 @@ def researcher_agent(state: SportAnalysisState) -> SportAnalysisState:
 Resultados de búsqueda:
 {formatted_results}
 
-{'Feedback del crítico a tener en cuenta: ' + feedback if feedback else ''}
+{'Feedback a tener en cuenta: ' + feedback if feedback else ''}
 
 Resume los datos más relevantes y verificables para responder la pregunta.""")
     ]
